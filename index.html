@@ -99,53 +99,65 @@
     clip-path: polygon(24px 0, calc(100% - 24px) 0, 100% 24px, 100% calc(100% - 24px), calc(100% - 24px) 100%, 24px 100%, 0 calc(100% - 24px), 0 24px);
     box-shadow: 0 0 60px rgba(10,40,80,.5), inset 0 0 80px rgba(4,10,24,.8);
   }
-  .scene svg.tree { display: block; width: 100%; height: auto; }
+  .scene .tree { display: block; width: 100%; height: auto; }
   .tags-layer { position: absolute; inset: 0; }
   .wtag {
-    position: absolute; width: 148px; transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+    position: absolute; width: 5.27em; font-size: 11px;
+    transform: translate(-50%, -50%) scale(.34);
     cursor: pointer; transition: transform .18s ease, filter .18s;
-    animation: swing 3.6s ease-in-out infinite alternate; transform-origin: 50% -14px;
   }
-  @keyframes swing { from { margin-top: -3px; } to { margin-top: 3px; } }
-  .wtag:hover { transform: translate(-50%, -50%) rotate(0deg) scale(1.14); z-index: 30; filter: brightness(1.08); animation-play-state: paused; }
-  .wtag .string { width: 2px; height: 16px; margin: 0 auto; background: linear-gradient(180deg, rgba(240,230,210,.15), var(--gold-dim)); }
-  .wtag .knot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin: -1px auto 0; box-shadow: 0 0 6px rgba(200,170,110,.8); }
+  .wtag .wswing { transform-origin: 50% 0; animation: swing 3.8s ease-in-out infinite alternate; }
+  @keyframes swing { from { transform: rotate(calc(var(--rot, 0deg) - 2.6deg)); }
+                     to   { transform: rotate(calc(var(--rot, 0deg) + 2.6deg)); } }
+  .wtag:hover { transform: translate(-50%, -50%) scale(1); z-index: 30; filter: brightness(1.08); }
+  .wtag:hover .wswing { animation-play-state: paused; }
+  .wtag .string { width: .18em; height: 1.82em; margin: 0 auto; background: linear-gradient(180deg, rgba(240,230,210,.15), var(--gold-dim)); }
+  .wtag .knot { width: .55em; height: .55em; border-radius: 50%; background: var(--gold); margin: -.09em auto 0; box-shadow: 0 0 .55em rgba(200,170,110,.8); }
   .wtag .board {
-    margin-top: 2px; padding: 10px 10px 8px; position: relative; overflow: hidden;
-    border: 1px solid rgba(0,0,0,.25);
-    box-shadow: 0 6px 14px rgba(0,0,0,.45), inset 0 0 24px rgba(255,255,255,.16);
+    margin-top: .18em; padding: .73em .45em .82em; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+    border: 1px solid rgba(0,0,0,.25); border-radius: 3px;
+    box-shadow: 0 .55em 1.28em rgba(0,0,0,.45), inset 0 0 2em rgba(255,255,255,.16);
   }
   .wtag .board::before {
     content: ""; position: absolute; inset: 0; opacity: .5; pointer-events: none;
-    background: repeating-linear-gradient(94deg, transparent 0 14px, rgba(0,0,0,.045) 14px 15px, transparent 15px 30px);
+    background: repeating-linear-gradient(90deg, transparent 0 1.28em, rgba(0,0,0,.045) 1.28em 1.37em, transparent 1.37em 2.73em);
   }
   .wtag.b .board {
-    background: linear-gradient(165deg, #d9f4fd 0%, #8fdcf2 45%, var(--blg-blue) 100%);
+    background: linear-gradient(175deg, #d9f4fd 0%, #8fdcf2 45%, var(--blg-blue) 100%);
     border-color: #1e93b8; color: #06303f;
   }
   .wtag.b .board::after {
-    content: ""; position: absolute; top: -24px; right: -24px; width: 56px; height: 56px;
+    content: ""; position: absolute; top: -.73em; right: -.73em; width: 2em; height: 2em; z-index: 0;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #ffdcec, var(--blg-pink) 62%, #e2537f);
-    box-shadow: -2px 2px 8px rgba(226,83,127,.7);
+    box-shadow: -.18em .18em .73em rgba(226,83,127,.7);
   }
   .wtag.g .board {
-    background: linear-gradient(135deg, var(--gen-gold) 0 50%, var(--gen-black) 50%);
-    border-color: #a8861c; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.55);
+    background: linear-gradient(160deg, var(--gen-gold) 0 50%, var(--gen-black) 50%);
+    border-color: #a8861c; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.8);
   }
-  .wtag .who { font-size: 11px; font-weight: 700; letter-spacing: .06em; opacity: .9; display: flex; align-items: center; gap: 5px; }
-  .wtag .who .fchip { font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 900; letter-spacing: .08em; }
+  .wtag .who { position: relative; z-index: 1; font-size: .82em; font-weight: 700; letter-spacing: .04em; opacity: .92; display: flex; align-items: center; justify-content: center; gap: .27em;
+    white-space: nowrap; overflow: hidden; }
+  .wtag .who .fchip { font-size: .64em; padding: .09em .36em; border-radius: 2px; font-weight: 900; letter-spacing: .06em; flex: none; }
+  .wtag .who .nick { overflow: hidden; text-overflow: ellipsis; max-width: 2.55em; }
   .wtag.b .who .fchip { background: #0d3a55; color: var(--blg-blue); }
   .wtag.g .who .fchip { background: var(--gen-gold); color: #191919; text-shadow: none; }
-  .wtag .wt { margin-top: 5px; font-size: 12px; line-height: 1.55; word-break: break-all;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 38px; }
+  .wtag .wt {
+    position: relative; z-index: 1;
+    margin: .64em auto .18em; width: 1.18em; height: 12.9em; font-size: 1em; line-height: 1.15; word-break: break-all;
+    writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: .02em; text-align: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
   .wtag.mine { z-index: 25; }
   .wtag.mine .board { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
   .wtag.mine::after {
-    content: "我的"; position: absolute; top: 10px; left: -6px; z-index: 2;
-    font-size: 9px; padding: 1px 6px; letter-spacing: .15em; color: #191400;
+    content: "我的"; position: absolute; top: .9em; left: -.55em; z-index: 2;
+    font-size: .82em; padding: .09em .55em; letter-spacing: .15em; color: #191400;
     background: var(--gold-bright); border-radius: 2px; box-shadow: 0 1px 4px rgba(0,0,0,.5);
   }
+  @media (max-width: 760px) { .wtag { font-size: 7.5px; } }
+  @media (max-width: 470px) { .wtag { font-size: 6.4px; } }
   .tags-empty {
     position: absolute; inset: 0; display: grid; place-items: center;
     color: var(--text-dim); font-size: 13px; letter-spacing: .2em; text-align: center;
@@ -163,7 +175,7 @@
     box-shadow: 0 0 26px rgba(60,192,230,.35);
   }
   .wtag .stamp {
-    position: absolute; right: 5px; bottom: 5px; z-index: 2;
+    position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); z-index: 2;
     font-size: 9px; padding: 1px 6px; font-weight: 900; letter-spacing: .1em;
     color: #7a5a12; border: 1px solid #b08a2e; border-radius: 3px;
     background: rgba(255,246,214,.82); transform: rotate(-8deg);
@@ -294,6 +306,23 @@
   .btn2:hover { filter: brightness(1.15); }
   .btn2:disabled { filter: grayscale(.6) brightness(.75); cursor: not-allowed; }
 
+  /* ===== 牌子详情查看 ===== */
+  .viewer .vmeta { margin-top: 14px; display: flex; justify-content: center; align-items: center; gap: 8px;
+    font-size: 13px; color: #cfe0ff; }
+  .viewer .vmeta .fchip { font-size: 10px; padding: 2px 8px; border-radius: 3px; font-weight: 900; letter-spacing: .1em; }
+  .viewer .vmeta .fchip.b { background: #0d3a55; color: var(--blg-blue); }
+  .viewer .vmeta .fchip.g { background: var(--gen-gold); color: #191919; }
+  .viewer .vmeta .vtime { font-size: 11px; color: var(--text-dim); }
+  .viewer .vcontent {
+    margin-top: 18px; padding: 20px 18px; font-size: 16px; line-height: 1.9; color: #eef4ff;
+    background: rgba(5,10,22,.6); border: 1px solid rgba(200,170,110,.28);
+    word-break: break-all; white-space: pre-wrap; min-height: 72px;
+  }
+  .viewer .vstamp { margin-top: 12px; text-align: center; font-size: 12px; letter-spacing: .2em;
+    color: var(--gold-bright); display: none; }
+  .viewer .vstamp.show { display: block; }
+  .viewer .vhint { margin-top: 10px; text-align: center; font-size: 11px; color: var(--text-dim); }
+
   .toast {
     position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: rgba(10,20,40,.95); border: 1px solid var(--gold); color: var(--gold-bright);
@@ -352,137 +381,7 @@
 <!-- 许愿树场景 -->
 <section class="scene-sec wrap">
   <div class="scene" id="scene">
-    <svg class="tree" viewBox="0 0 1000 780" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <radialGradient id="moonG" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#fdf6dd"/><stop offset="70%" stop-color="#f0e6d2"/>
-          <stop offset="100%" stop-color="rgba(240,230,210,0)"/>
-        </radialGradient>
-        <radialGradient id="canopyDeep" cx="45%" cy="42%" r="68%">
-          <stop offset="0%" stop-color="#2a5d3e"/><stop offset="72%" stop-color="#1a4029"/><stop offset="100%" stop-color="#12301e00"/>
-        </radialGradient>
-        <radialGradient id="canopyMid" cx="48%" cy="38%" r="66%">
-          <stop offset="0%" stop-color="#3d7f4e"/><stop offset="70%" stop-color="#255538"/><stop offset="100%" stop-color="#1a402900"/>
-        </radialGradient>
-        <radialGradient id="canopyLit" cx="50%" cy="45%" r="60%">
-          <stop offset="0%" stop-color="#5ba05f"/><stop offset="65%" stop-color="#3d7f4e"/><stop offset="100%" stop-color="#3d7f4e00"/>
-        </radialGradient>
-        <linearGradient id="trunkG" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#332216"/><stop offset="45%" stop-color="#6b4a30"/><stop offset="100%" stop-color="#2c1d12"/>
-        </linearGradient>
-        <linearGradient id="groundG" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#1c4a38"/><stop offset="100%" stop-color="#0a1c2a"/>
-        </linearGradient>
-        <radialGradient id="firefly" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#ffe9a8"/><stop offset="40%" stop-color="#ffd76a90"/><stop offset="100%" stop-color="#ffd76a00"/>
-        </radialGradient>
-      </defs>
-
-      <!-- 夜空与星 -->
-      <rect width="1000" height="780" fill="transparent"/>
-      <g fill="#f0e6d2">
-        <circle cx="90" cy="80" r="1.6" opacity=".8"/><circle cx="210" cy="52" r="1.1" opacity=".5"/>
-        <circle cx="330" cy="104" r="1.4" opacity=".6"/><circle cx="452" cy="64" r="1.2" opacity=".55"/>
-        <circle cx="586" cy="92" r="1.5" opacity=".7"/><circle cx="700" cy="46" r="1.2" opacity=".5"/>
-        <circle cx="826" cy="70" r="1.6" opacity=".8"/><circle cx="922" cy="140" r="1.2" opacity=".5"/>
-        <circle cx="60" cy="210" r="1.2" opacity=".5"/><circle cx="150" cy="300" r="1" opacity=".4"/>
-        <circle cx="946" cy="270" r="1.3" opacity=".55"/><circle cx="888" cy="366" r="1.1" opacity=".45"/>
-        <circle cx="40" cy="420" r="1.1" opacity=".4"/><circle cx="966" cy="470" r="1.2" opacity=".4"/>
-      </g>
-      <circle cx="852" cy="112" r="54" fill="url(#moonG)" opacity=".85"/>
-      <circle cx="852" cy="112" r="33" fill="#f7efdb" opacity=".95"/>
-
-      <!-- 远山两层 -->
-      <path d="M0,585 L130,492 L255,560 L410,470 L575,565 L755,486 L1000,585 L1000,780 L0,780 Z" fill="#0c1e30" opacity=".85"/>
-      <path d="M0,640 L180,575 L340,630 L520,560 L700,632 L870,572 L1000,640 L1000,780 L0,780 Z" fill="#102a40" opacity=".8"/>
-
-      <!-- 草地 -->
-      <ellipse cx="500" cy="766" rx="660" ry="128" fill="url(#groundG)"/>
-      <ellipse cx="500" cy="748" rx="430" ry="74" fill="#245c46" opacity=".65"/>
-      <!-- 草丛 -->
-      <g stroke="#2c6a4e" stroke-width="3" stroke-linecap="round" fill="none" opacity=".8">
-        <path d="M150,730 q4,-18 10,-24 M162,732 q-2,-14 -8,-22"/>
-        <path d="M840,726 q4,-18 10,-24 M852,728 q-2,-14 -8,-22"/>
-        <path d="M70,700 q3,-14 8,-19 M80,702 q-2,-11 -6,-16"/>
-        <path d="M930,700 q3,-14 8,-19 M940,702 q-2,-11 -6,-16"/>
-      </g>
-      <!-- 发光蘑菇 -->
-      <g>
-        <ellipse cx="238" cy="722" rx="9" ry="5" fill="#0a1f30"/>
-        <path d="M229,722 a9,7 0 0 1 18,0 Z" fill="#0ac8b9" opacity=".8"/>
-        <circle cx="238" cy="716" r="12" fill="url(#firefly)" opacity=".5"/>
-        <ellipse cx="768" cy="716" rx="8" ry="4.5" fill="#0a1f30"/>
-        <path d="M760,716 a8,6 0 0 1 16,0 Z" fill="#0ac8b9" opacity=".7"/>
-        <circle cx="768" cy="710" r="11" fill="url(#firefly)" opacity=".5"/>
-      </g>
-
-      <!-- 树影 -->
-      <ellipse cx="512" cy="748" rx="230" ry="30" fill="#06121e" opacity=".55"/>
-
-      <!-- 树干（根部外扩，曲线有机） -->
-      <path d="M414,752 C438,742 452,730 452,700 C452,610 436,540 402,462
-               C430,438 458,428 484,426 L500,430 L516,426 C542,428 570,438 598,462
-               C564,540 548,610 548,700 C548,730 562,742 586,752
-               C560,760 520,762 500,758 C480,762 440,760 414,752 Z" fill="url(#trunkG)"/>
-      <path d="M470,742 C480,630 466,552 440,486" stroke="#241509" stroke-width="4.5" fill="none" opacity=".55"/>
-      <path d="M532,742 C524,632 538,554 562,492" stroke="#241509" stroke-width="4.5" fill="none" opacity=".55"/>
-      <path d="M500,742 C498,660 502,560 500,470" stroke="#241509" stroke-width="2.5" fill="none" opacity=".35"/>
-      <!-- 主枝 -->
-      <path d="M446,470 C400,432 346,408 296,414 C330,398 372,398 410,420" stroke="#4d3520" stroke-width="16" fill="none" stroke-linecap="round"/>
-      <path d="M554,470 C600,432 654,408 704,414 C670,398 628,398 590,420" stroke="#4d3520" stroke-width="16" fill="none" stroke-linecap="round"/>
-      <path d="M482,452 C462,404 440,368 408,338" stroke="#4d3520" stroke-width="11" fill="none" stroke-linecap="round"/>
-      <path d="M518,452 C540,402 566,364 602,332" stroke="#4d3520" stroke-width="11" fill="none" stroke-linecap="round"/>
-      <path d="M500,446 C500,392 498,346 500,300" stroke="#4d3520" stroke-width="9" fill="none" stroke-linecap="round"/>
-
-      <!-- 树冠：深-中-亮三层 -->
-      <g>
-        <circle cx="292" cy="360" r="112" fill="url(#canopyDeep)"/>
-        <circle cx="708" cy="360" r="112" fill="url(#canopyDeep)"/>
-        <circle cx="360" cy="298" r="120" fill="url(#canopyDeep)"/>
-        <circle cx="640" cy="298" r="120" fill="url(#canopyDeep)"/>
-        <circle cx="500" cy="236" r="128" fill="url(#canopyDeep)"/>
-        <circle cx="420" cy="376" r="105" fill="url(#canopyDeep)"/>
-        <circle cx="580" cy="376" r="105" fill="url(#canopyDeep)"/>
-        <circle cx="500" cy="340" r="140" fill="url(#canopyMid)"/>
-        <circle cx="336" cy="330" r="88" fill="url(#canopyMid)"/>
-        <circle cx="664" cy="330" r="88" fill="url(#canopyMid)"/>
-        <circle cx="432" cy="262" r="92" fill="url(#canopyMid)"/>
-        <circle cx="568" cy="262" r="92" fill="url(#canopyMid)"/>
-        <circle cx="500" cy="212" r="78" fill="url(#canopyLit)"/>
-        <circle cx="404" cy="300" r="56" fill="url(#canopyLit)" opacity=".9"/>
-        <circle cx="596" cy="300" r="56" fill="url(#canopyLit)" opacity=".9"/>
-        <circle cx="466" cy="330" r="64" fill="url(#canopyLit)" opacity=".85"/>
-        <circle cx="540" cy="336" r="60" fill="url(#canopyLit)" opacity=".8"/>
-        <!-- 树冠边缘小簇 -->
-        <g fill="#255538" opacity=".9">
-          <circle cx="268" cy="404" r="26"/><circle cx="246" cy="352" r="22"/>
-          <circle cx="732" cy="404" r="26"/><circle cx="754" cy="352" r="22"/>
-          <circle cx="382" cy="196" r="24"/><circle cx="618" cy="196" r="24"/>
-          <circle cx="500" cy="150" r="26"/><circle cx="300" cy="264" r="20"/><circle cx="700" cy="264" r="20"/>
-        </g>
-        <!-- 金色树灯 -->
-        <g fill="#ffd76a">
-          <circle cx="352" cy="240" r="3" opacity=".75"/><circle cx="452" cy="184" r="3.4" opacity=".85"/>
-          <circle cx="552" cy="192" r="3" opacity=".7"/><circle cx="648" cy="244" r="3" opacity=".7"/>
-          <circle cx="286" cy="318" r="2.6" opacity=".6"/><circle cx="714" cy="318" r="2.6" opacity=".6"/>
-          <circle cx="404" cy="404" r="2.6" opacity=".55"/><circle cx="600" cy="404" r="2.6" opacity=".55"/>
-        </g>
-        <g fill="url(#firefly)" opacity=".65">
-          <circle cx="352" cy="240" r="9"/><circle cx="452" cy="184" r="10"/>
-          <circle cx="552" cy="192" r="9"/><circle cx="648" cy="244" r="9"/>
-        </g>
-        <!-- 金边高光 -->
-        <path d="M372,206 C428,158 572,158 628,206" stroke="#c8aa6e" stroke-width="2.5" fill="none" opacity=".4" stroke-linecap="round"/>
-      </g>
-
-      <!-- 萤火虫 -->
-      <g>
-        <circle cx="180" cy="520" r="8" fill="url(#firefly)"/><circle cx="180" cy="520" r="2" fill="#fff3c4"/>
-        <circle cx="828" cy="540" r="7" fill="url(#firefly)"/><circle cx="828" cy="540" r="1.8" fill="#fff3c4"/>
-        <circle cx="130" cy="620" r="6" fill="url(#firefly)" opacity=".8"/><circle cx="130" cy="620" r="1.6" fill="#fff3c4"/>
-        <circle cx="884" cy="640" r="6" fill="url(#firefly)" opacity=".8"/><circle cx="884" cy="640" r="1.6" fill="#fff3c4"/>
-      </g>
-    </svg>
+    <img class="tree" src="tree-bg.jpg" alt="夜色许愿树插画（AI 生成）" />
     <div class="tags-layer" id="tagsLayer">
       <div class="tags-empty" id="tagsEmpty">树梢还空着 ——<br>点击下方按钮，挂上第一块应援牌</div>
     </div>
@@ -518,7 +417,7 @@
   <div class="foot-divider"></div>
   <p class="disclaimer">
     <b>【版权与来源申明】</b>本站为粉丝自建的非营利应援页面，与 Riot Games（拳头游戏）、BLG / GEN 战队及赛事主办方无任何隶属关系。<br>
-    本站未使用任何游戏官方图片素材，树木、徽章等装饰均为自制 SVG / CSS 绘制；「League of Legends」「英雄联盟」及全球总决赛（Worlds）相关名称的权利归 Riot Games 所有。<br>
+    本站未使用任何游戏官方图片素材；许愿树背景插画为 AI 生成（无第三方版权图），徽章等装饰为自制 SVG / CSS 绘制；「League of Legends」「英雄联盟」及全球总决赛（Worlds）相关名称的权利归 Riot Games 所有。<br>
     队伍名称与选手ID仅作应援指代；应援牌与打CALL数据由访客提交并保存在本站云端数据库，每台设备每日限 10 次声波、限挂一块牌子（可修改）。
   </p>
 </footer>
@@ -550,6 +449,25 @@
     <div class="modal-btns">
       <button class="btn2 ghost" id="mCancel">先不挂</button>
       <button class="btn2 main" id="mSubmit">挂到树上</button>
+    </div>
+  </div>
+</div>
+
+<!-- 牌子详情查看 -->
+<div class="mask" id="viewerMask">
+  <div class="modal viewer">
+    <h3>应 援 牌</h3>
+    <div class="vmeta">
+      <span class="fchip" id="vFac">BLG</span>
+      <span id="vNick">匿名召唤师</span>
+      <span class="vtime" id="vTime"></span>
+    </div>
+    <div class="vcontent" id="vContent"></div>
+    <div class="vstamp" id="vStamp">✦ 已 还 愿 ✦</div>
+    <div class="vhint">每台设备限挂一块牌子 · 点自己的牌子可以修改</div>
+    <div class="modal-btns">
+      <button class="btn2 ghost" id="vClose">关 闭</button>
+      <button class="btn2 main" id="vEdit" style="display:none">修改我的牌子</button>
     </div>
   </div>
 </div>
@@ -643,13 +561,20 @@
   ];
   const DAILY_LIMIT = 10;
 
-  /* ===== 许愿树挂点 ===== */
+  /* ===== 许愿树挂点（按 tree-bg.png 的树冠排错位菱形，横向间距 >=18%，避免牌子叠在一起） ===== */
   const SPOTS = [
-    [33, 36], [42, 26], [50, 22], [58, 26], [67, 36],
-    [36, 49], [45, 38], [55, 38], [64, 49], [40, 60],
-    [50, 50], [60, 60], [34, 62], [66, 62], [45, 67],
-    [56, 68], [50, 76], [39, 72]
+    [42, 27], [58, 27],
+    [32, 35], [50, 33], [68, 35],
+    [22, 43], [40, 41], [60, 41], [78, 43],
+    [30, 51], [48, 49], [66, 51],
+    [22, 56], [40, 54], [60, 54], [78, 56],
+    [32, 61], [68, 61]
   ];
+  /* 挂点跳序：让前几块牌子就分散到树两侧，而不是挤在同一个区域 */
+  const SPREAD = [0, 8, 13, 4, 16, 2, 10, 5, 14, 7, 11, 1, 9, 15, 3, 12, 17, 6];
+  /* 窄屏（手机）用的稀疏挂点：牌子相对场景更大，必须拉开距离 */
+  const SPOTS_MINI = [[50, 26], [24, 40], [76, 40], [40, 52], [62, 56], [22, 60], [78, 60], [50, 64]];
+  const SPREAD_MINI = [0, 2, 5, 3, 7, 1, 4, 6];
   let wishes = [];
   let myWish = null;
   let pickedFaction = "BLG";
@@ -682,9 +607,12 @@
     $("tagsEmpty").style.display = wishes.length ? "none" : "grid";
     layer.querySelectorAll(".wtag").forEach(n => n.remove());
     myWish = null;
+    const narrow = ($("scene") ? $("scene").clientWidth : 999) < 620;
+    const S = narrow ? SPOTS_MINI : SPOTS;
+    const O = narrow ? SPREAD_MINI : SPREAD;
     wishes.forEach((w, i) => {
-      const spot = SPOTS[i % SPOTS.length];
-      const drift = Math.floor(i / SPOTS.length) * 3;
+      const spot = S[O[i % O.length] % S.length];
+      const drift = Math.floor(i / S.length) * 3;
       const rot = ((i % 5) - 2) * 2.4;
       const isMine = w.client_id === clientId;
       const el = document.createElement("div");
@@ -694,21 +622,20 @@
       el.style.setProperty("--rot", rot + "deg");
       el.style.animationDelay = (i % 7) * -0.4 + "s";
       el.innerHTML = `
-        <div class="string"></div><div class="knot"></div>
+        <div class="wswing"><div class="string"></div><div class="knot"></div>
         <div class="board">
-          <div class="who"><span class="fchip">${esc(w.faction || "BLG")}</span>${esc(w.nickname || "匿名召唤师")}</div>
+          <div class="who"><span class="fchip">${esc(w.faction || "BLG")}</span><span class="nick">${esc(w.nickname || "匿名召唤师")}</span></div>
           <div class="wt">${esc(w.content)}</div>
           ${w.fulfilled ? '<div class="stamp">已还愿</div>' : ""}
-        </div>`;
-      el.title = `${w.nickname || "匿名召唤师"}：${w.content}${w.fulfilled ? "（已还愿）" : ""}`;
+        </div></div>`;
       if (isMine) myWish = w;
-      el.onclick = () => openModal(isMine);
+      el.onclick = () => { if (isMine) openModal(true); else openViewer(w); };
       layer.appendChild(el);
     });
     $("mineTip").innerHTML = myWish
       ? (myWish.fulfilled
           ? `你已经挂了一块 <b>${esc(myWish.faction)}</b> 牌，并且回来还过愿了 ✦ —— 点树上的「我的」牌子可继续修改内容`
-          : `你已经挂了一块 <b>${esc(myWish.faction)}</b> 牌 —— 点树上的「我的」牌子即可修改；15日决赛之后回来还能「还愿」`)
+          : `你已经挂了一块 <b>${esc(myWish.faction)}</b> 牌 —— 点树上的「我的」牌子即可修改；点别人的牌子可以看全文`)
       : "每台设备限挂一块牌子，写完还能随时回来改";
     $("openBtn").textContent = myWish ? "修改我的应援牌" : "挂上我的应援牌";
     updateFulfillBtn();
@@ -753,6 +680,23 @@
       $("tagsEmpty").textContent = "大树连接失败：" + (e.message || "未知错误") + "，请刷新重试";
     }
   }
+
+  function openViewer(w) {
+    const fac = w.faction === "GEN" ? "GEN" : "BLG";
+    $("vFac").textContent = fac;
+    $("vFac").className = "fchip " + (fac === "GEN" ? "g" : "b");
+    $("vNick").textContent = w.nickname || "匿名召唤师";
+    try {
+      $("vTime").textContent = new Date(w.created_at).toLocaleString("zh-CN",
+        { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    } catch (e) { $("vTime").textContent = ""; }
+    $("vContent").textContent = w.content;
+    $("vStamp").classList.toggle("show", !!w.fulfilled);
+    $("viewerMask").classList.add("show");
+  }
+  $("vClose").onclick = () => $("viewerMask").classList.remove("show");
+  $("viewerMask").onclick = e => { if (e.target === $("viewerMask")) $("viewerMask").classList.remove("show"); };
+  $("vEdit").onclick = () => { $("viewerMask").classList.remove("show"); openModal(true); };
 
   function openModal(isEdit) {
     editing = !!(isEdit && myWish);
@@ -895,6 +839,13 @@
   /* ===== 初始化 ===== */
   loadWishes();
   loadCheerData();
+
+  /* 横竖屏切换 / 窗口缩放时，挂点密度跟着换 */
+  let _narrow = ($("scene") ? $("scene").clientWidth : 999) < 620;
+  window.addEventListener("resize", () => {
+    const n = ($("scene") ? $("scene").clientWidth : 999) < 620;
+    if (n !== _narrow) { _narrow = n; renderTags(); }
+  });
 </script>
 </body>
 </html>
