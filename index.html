@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>许愿树 · S16 决赛 BLG vs GEN</title>
+<style>
+  :root {
+    --bg-deep: #050a16;
+    --gold: #c8aa6e;
+    --gold-bright: #f0e6d2;
+    --gold-dim: #785a28;
+    --blg-blue: #3cc0e6;       /* BLG 官方青蓝（参考 logo 取色） */
+    --blg-blue-mid: #23a9d1;
+    --blg-blue-deep: #1587ac;
+    --blg-pink: #f96d9c;       /* BLG 粉（参考 logo 取色） */
+    --gen-gold: #f2c437;
+    --gen-black: #17171a;
+    --text-main: #cdbe91;
+    --text-dim: #8a7a5c;
+    --teal: #0ac8b9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background:
+      radial-gradient(ellipse 70% 45% at 50% -8%, rgba(60,192,230,.10), transparent),
+      radial-gradient(ellipse 55% 38% at 88% 108%, rgba(242,196,55,.07), transparent),
+      linear-gradient(180deg, #04070f 0%, #081226 46%, #0b1a30 74%, #10263f 100%);
+    color: var(--text-main);
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(200,170,110,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,170,110,.03) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 75% 60% at 50% 35%, #000, transparent);
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; }
+
+  /* ===== Hero ===== */
+  header { text-align: center; padding: 56px 16px 22px; }
+  .kicker { letter-spacing: .5em; font-size: 11px; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 14px; }
+  h1.title {
+    font-size: clamp(36px, 7vw, 64px); font-weight: 900; letter-spacing: .08em;
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold) 55%, var(--gold-dim));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 20px rgba(200,170,110,.3));
+  }
+  .subtitle { margin-top: 12px; color: var(--text-dim); font-size: 14px; letter-spacing: .18em; }
+
+  /* ===== 倒计时 ===== */
+  .arena { display: flex; align-items: center; justify-content: center; gap: clamp(14px, 4vw, 46px); margin-top: 28px; flex-wrap: wrap; }
+  .side { text-align: center; min-width: 150px; }
+  .side .crest-svg { width: 86px; height: 86px; display: block; margin: 0 auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,.45)); }
+  .side .crest {
+    width: 84px; height: 84px; margin: 0 auto; display: grid; place-items: center;
+    font-size: 18px; font-weight: 900; letter-spacing: .01em;
+    clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  }
+  .side.b .crest {
+    color: #04293a;
+    background:
+      radial-gradient(circle 13px at 88% 10%, #ffd2e6 0 42%, var(--blg-pink) 72%, transparent 73%),
+      linear-gradient(160deg, #7fdcf5 12%, var(--blg-blue) 62%, var(--blg-blue-mid));
+  }
+  .side.g .crest {
+    color: var(--gen-gold);
+    background: linear-gradient(135deg, var(--gen-gold) 0 50%, var(--gen-black) 50%);
+    text-shadow: 0 1px 4px rgba(0,0,0,.7);
+  }
+  .side .tname { margin-top: 10px; font-size: 17px; font-weight: 700; letter-spacing: .14em; }
+  .side.b .tname { color: var(--blg-blue); text-shadow: 0 0 14px rgba(60,192,230,.5); }
+  .side.g .tname { color: var(--gen-gold); text-shadow: 0 0 14px rgba(242,196,55,.4); }
+  .side .tregion { font-size: 11px; color: var(--text-dim); letter-spacing: .3em; margin-top: 4px; }
+  .center { text-align: center; }
+  .cd-label { font-size: 11px; letter-spacing: .4em; color: var(--gold-dim); margin-bottom: 10px; }
+  .countdown { display: flex; gap: 10px; align-items: flex-start; }
+  .cd-cell { text-align: center; }
+  .cd-text { font-size: clamp(24px, 5vw, 40px); font-weight: 900; color: var(--gold-bright);
+    text-shadow: 0 0 18px rgba(200,170,110,.45); font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .cd-text b { font-size: 1.35em; letter-spacing: .02em; }
+  .cd-text span { font-size: .6em; color: var(--gold); margin: 0 7px 0 3px; }
+  .cd-done {
+    display: none; font-size: clamp(20px, 3.6vw, 30px); font-weight: 900; letter-spacing: .2em;
+    color: var(--blg-blue); text-shadow: 0 0 22px rgba(60,192,230,.6);
+  }
+  .cd-note { margin-top: 12px; font-size: 12px; color: var(--text-dim); letter-spacing: .12em; }
+
+  /* ===== 场景 ===== */
+  .scene-sec { margin-top: 38px; }
+  .scene {
+    position: relative; max-width: 980px; margin: 0 auto;
+    border: 1px solid rgba(200,170,110,.28);
+    background: linear-gradient(180deg, #04070f 0%, #081127 52%, #0d2238 78%, #14344e 100%);
+    overflow: hidden;
+    clip-path: polygon(24px 0, calc(100% - 24px) 0, 100% 24px, 100% calc(100% - 24px), calc(100% - 24px) 100%, 24px 100%, 0 calc(100% - 24px), 0 24px);
+    box-shadow: 0 0 60px rgba(10,40,80,.5), inset 0 0 80px rgba(4,10,24,.8);
+  }
+  .scene svg.tree { display: block; width: 100%; height: auto; }
+  .tags-layer { position: absolute; inset: 0; }
+  .wtag {
+    position: absolute; width: 148px; transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+    cursor: pointer; transition: transform .18s ease, filter .18s;
+    animation: swing 3.6s ease-in-out infinite alternate; transform-origin: 50% -14px;
+  }
+  @keyframes swing { from { margin-top: -3px; } to { margin-top: 3px; } }
+  .wtag:hover { transform: translate(-50%, -50%) rotate(0deg) scale(1.14); z-index: 30; filter: brightness(1.08); animation-play-state: paused; }
+  .wtag .string { width: 2px; height: 16px; margin: 0 auto; background: linear-gradient(180deg, rgba(240,230,210,.15), var(--gold-dim)); }
+  .wtag .knot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin: -1px auto 0; box-shadow: 0 0 6px rgba(200,170,110,.8); }
+  .wtag .board {
+    margin-top: 2px; padding: 10px 10px 8px; position: relative; overflow: hidden;
+    border: 1px solid rgba(0,0,0,.25);
+    box-shadow: 0 6px 14px rgba(0,0,0,.45), inset 0 0 24px rgba(255,255,255,.16);
+  }
+  .wtag .board::before {
+    content: ""; position: absolute; inset: 0; opacity: .5; pointer-events: none;
+    background: repeating-linear-gradient(94deg, transparent 0 14px, rgba(0,0,0,.045) 14px 15px, transparent 15px 30px);
+  }
+  .wtag.b .board {
+    background: linear-gradient(165deg, #d9f4fd 0%, #8fdcf2 45%, var(--blg-blue) 100%);
+    border-color: #1e93b8; color: #06303f;
+  }
+  .wtag.b .board::after {
+    content: ""; position: absolute; top: -24px; right: -24px; width: 56px; height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffdcec, var(--blg-pink) 62%, #e2537f);
+    box-shadow: -2px 2px 8px rgba(226,83,127,.7);
+  }
+  .wtag.g .board {
+    background: linear-gradient(135deg, var(--gen-gold) 0 50%, var(--gen-black) 50%);
+    border-color: #a8861c; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.55);
+  }
+  .wtag .who { font-size: 11px; font-weight: 700; letter-spacing: .06em; opacity: .9; display: flex; align-items: center; gap: 5px; }
+  .wtag .who .fchip { font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 900; letter-spacing: .08em; }
+  .wtag.b .who .fchip { background: #0d3a55; color: var(--blg-blue); }
+  .wtag.g .who .fchip { background: var(--gen-gold); color: #191919; text-shadow: none; }
+  .wtag .wt { margin-top: 5px; font-size: 12px; line-height: 1.55; word-break: break-all;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 38px; }
+  .wtag.mine { z-index: 25; }
+  .wtag.mine .board { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+  .wtag.mine::after {
+    content: "我的"; position: absolute; top: 10px; left: -6px; z-index: 2;
+    font-size: 9px; padding: 1px 6px; letter-spacing: .15em; color: #191400;
+    background: var(--gold-bright); border-radius: 2px; box-shadow: 0 1px 4px rgba(0,0,0,.5);
+  }
+  .tags-empty {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    color: var(--text-dim); font-size: 13px; letter-spacing: .2em; text-align: center;
+  }
+
+  /* ===== 按钮区 ===== */
+  .actions { text-align: center; margin-top: 26px; }
+  .btn {
+    display: inline-block; cursor: pointer; border: none; font-family: inherit;
+    padding: 15px 52px; font-size: 16px; font-weight: 700; letter-spacing: .3em;
+    color: #04303f;
+    background: linear-gradient(180deg, #8fe0f3, var(--blg-blue) 55%, var(--blg-blue-mid));
+    clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0 50%);
+    transition: filter .2s, transform .1s;
+    box-shadow: 0 0 26px rgba(60,192,230,.35);
+  }
+  .wtag .stamp {
+    position: absolute; right: 5px; bottom: 5px; z-index: 2;
+    font-size: 9px; padding: 1px 6px; font-weight: 900; letter-spacing: .1em;
+    color: #7a5a12; border: 1px solid #b08a2e; border-radius: 3px;
+    background: rgba(255,246,214,.82); transform: rotate(-8deg);
+  }
+  .btn-fulfill {
+    display: none; cursor: pointer; border: none; font-family: inherit;
+    margin-left: 10px; padding: 15px 40px; font-size: 15px; font-weight: 700; letter-spacing: .25em;
+    color: #1a1408;
+    background: linear-gradient(180deg, #f4ead2, var(--gold) 55%, var(--gold-dim));
+    clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0 50%);
+    transition: filter .2s, transform .1s;
+    box-shadow: 0 0 22px rgba(200,170,110,.35);
+  }
+  .btn-fulfill:hover { filter: brightness(1.1); }
+  .btn-fulfill:active { transform: scale(.97); }
+  .btn-fulfill.show { display: inline-block; }
+  .fulfill-note { margin-top: 10px; font-size: 12px; color: var(--gold-dim); }
+  .btn:hover { filter: brightness(1.1); }
+  .btn:active { transform: scale(.97); }
+  .btn:disabled { filter: grayscale(.6) brightness(.75); cursor: not-allowed; }
+  .mine-tip { margin-top: 12px; font-size: 13px; color: var(--text-dim); }
+  .mine-tip b { color: var(--gold-bright); }
+  .msg { margin-top: 10px; font-size: 13px; min-height: 18px; }
+  .msg.ok { color: var(--teal); }
+  .msg.err { color: #ff7b86; }
+
+  /* ===== 选手打CALL ===== */
+  .cheer-sec { margin-top: 54px; }
+  .sec-head { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .sec-head .line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim)); }
+  .sec-head .line.r { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+  .sec-head h2 { font-size: 20px; letter-spacing: .25em; color: var(--gold-bright); white-space: nowrap; text-align: center; }
+  .sec-sub { text-align: center; font-size: 12px; color: var(--text-dim); letter-spacing: .15em; margin-bottom: 22px; }
+  .sec-sub b { color: var(--blg-blue); }
+  .team-label { display: flex; align-items: center; gap: 12px; margin: 22px 0 12px; }
+  .team-label .tl-line { flex: 1; height: 1px; background: rgba(200,170,110,.2); }
+  .team-label .tl-name { font-size: 14px; font-weight: 900; letter-spacing: .2em; }
+  .team-label.b .tl-name { color: var(--blg-blue); }
+  .team-label.g .tl-name { color: var(--gen-gold); }
+  .cheer-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .cheer-grid.g5 { grid-template-columns: repeat(5, 1fr); }
+  @media (max-width: 760px) { .cheer-grid, .cheer-grid.g5 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 460px) { .cheer-grid, .cheer-grid.g5 { grid-template-columns: repeat(2, 1fr); } }
+  .ccard {
+    position: relative; text-align: center; cursor: pointer; user-select: none;
+    padding: 16px 6px 12px; border: 1px solid rgba(200,170,110,.22);
+    background: linear-gradient(180deg, rgba(20,36,66,.9), rgba(10,20,40,.95));
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+    transition: transform .12s, border-color .15s, box-shadow .15s;
+  }
+  .ccard:hover { transform: translateY(-3px); }
+  .ccard:active { transform: scale(.96); }
+  .ccard.b { border-color: rgba(60,192,230,.45); }
+  .ccard.b:hover { border-color: var(--blg-blue); box-shadow: 0 0 18px rgba(60,192,230,.35); }
+  .ccard.g { border-color: rgba(242,196,55,.35); }
+  .ccard.g:hover { border-color: var(--gen-gold); box-shadow: 0 0 18px rgba(242,196,55,.28); }
+  .ccard .cid { font-size: 17px; font-weight: 900; letter-spacing: .04em; }
+  .ccard.b .cid { color: var(--blg-blue); }
+  .ccard.g .cid { color: var(--gen-gold); }
+  .ccard .cpos { font-size: 10px; letter-spacing: .22em; color: var(--text-dim); margin-top: 4px; }
+  .ccard .ccnt { margin-top: 10px; font-size: 11px; color: var(--text-dim); }
+  .ccard .ccnt span { font-size: 17px; font-weight: 900; }
+  .ccard.b .ccnt span { color: var(--blg-blue); }
+  .ccard.g .ccnt span { color: var(--gen-gold); }
+  .plus1 {
+    position: absolute; left: 50%; top: 4px; transform: translateX(-50%);
+    color: #ffd76a; font-weight: 900; font-size: 15px; pointer-events: none;
+    text-shadow: 0 0 10px rgba(255,200,60,.9);
+    animation: rise .9s ease forwards;
+  }
+  @keyframes rise { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -34px; } }
+  .daily-left { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-dim); letter-spacing: .1em; }
+  .daily-left b { color: var(--gold-bright); }
+
+  footer { margin-top: 60px; padding: 30px 0 46px; text-align: center; }
+  .foot-divider { width: min(560px, 80%); margin: 0 auto 24px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim), transparent); }
+  .disclaimer { max-width: 720px; margin: 0 auto; font-size: 11px; line-height: 1.9; color: var(--text-dim); }
+  .disclaimer b { color: var(--gold-dim); }
+
+  /* ===== 弹窗 ===== */
+  .mask {
+    position: fixed; inset: 0; background: rgba(3,7,16,.78); backdrop-filter: blur(3px);
+    display: none; place-items: center; z-index: 100; padding: 20px;
+  }
+  .mask.show { display: grid; }
+  .modal {
+    width: min(520px, 94vw); max-height: 92vh; overflow-y: auto;
+    background: linear-gradient(180deg, #0e1c38, #0a1428);
+    border: 1px solid var(--gold-dim); padding: 30px 28px;
+    clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px), 0 18px);
+    animation: pop .25s ease;
+  }
+  @keyframes pop { from { transform: scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal h3 { color: var(--gold-bright); font-size: 18px; letter-spacing: .25em; text-align: center; }
+  .modal .sub { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 8px; }
+  .fac-pick { display: flex; gap: 12px; margin-top: 20px; }
+  .fac {
+    flex: 1; cursor: pointer; padding: 16px 10px; text-align: center;
+    border: 1px solid rgba(200,170,110,.25); transition: transform .15s;
+    clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+  }
+  .fac:hover { transform: translateY(-3px); }
+  .fac .fname { font-size: 18px; font-weight: 900; letter-spacing: .1em; }
+  .fac .fdesc { font-size: 10px; letter-spacing: .2em; margin-top: 6px; opacity: .85; }
+  .fac.b { background: linear-gradient(165deg, #d9f4fd, var(--blg-blue) 55%, var(--blg-blue-mid)); color: #06303f; }
+  .fac.b::before { content: ""; float: right; width: 18px; height: 18px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffdcec, var(--blg-pink)); margin: -4px -4px 0 0; }
+  .fac.g { background: linear-gradient(135deg, var(--gen-gold) 0 50%, var(--gen-black) 50%); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+  .fac.sel.b { border-color: #06303f; box-shadow: 0 0 0 2px #06303f, 0 0 22px rgba(60,192,230,.6); }
+  .fac.sel.g { border-color: var(--gen-gold); box-shadow: 0 0 0 2px var(--gen-gold), 0 0 22px rgba(242,196,55,.45); }
+  .field { margin-top: 16px; }
+  .field label { display: block; font-size: 12px; letter-spacing: .2em; color: var(--text-dim); margin-bottom: 8px; }
+  input[type="text"], textarea {
+    width: 100%; background: rgba(5,10,22,.85); border: 1px solid rgba(200,170,110,.3);
+    color: var(--gold-bright); padding: 12px 14px; font-size: 14px; font-family: inherit; outline: none;
+  }
+  input:focus, textarea:focus { border-color: var(--gold); }
+  textarea { min-height: 90px; resize: vertical; }
+  .modal-btns { display: flex; gap: 12px; margin-top: 22px; }
+  .btn2 {
+    flex: 1; cursor: pointer; border: none; font-family: inherit;
+    padding: 13px 0; font-size: 14px; font-weight: 700; letter-spacing: .25em;
+    clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+    transition: filter .2s;
+  }
+  .btn2.main { color: #04303f; background: linear-gradient(180deg, #8fe0f3, var(--blg-blue) 55%, var(--blg-blue-mid)); }
+  .btn2.ghost { color: var(--text-dim); background: rgba(120,90,40,.15); border: 1px solid rgba(200,170,110,.3); }
+  .btn2:hover { filter: brightness(1.15); }
+  .btn2:disabled { filter: grayscale(.6) brightness(.75); cursor: not-allowed; }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(10,20,40,.95); border: 1px solid var(--gold); color: var(--gold-bright);
+    padding: 12px 28px; font-size: 14px; letter-spacing: .1em; opacity: 0;
+    transition: opacity .3s, transform .3s; pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="kicker">WORLDS 2026 · FINALS WISHING TREE</div>
+  <h1 class="title">S16 决赛许愿树</h1>
+  <div class="subtitle">把应援牌挂上树梢 · 声音会传到决赛现场 · 15日决赛之后回来还愿</div>
+
+  <div class="arena">
+    <div class="side b">
+      <svg class="crest-svg" viewBox="0 0 100 100" role="img" aria-label="BLG">
+        <defs>
+          <linearGradient id="blgHex" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#8ee2f7"/><stop offset="52%" stop-color="#3cc0e6"/><stop offset="100%" stop-color="#1e9bc2"/>
+          </linearGradient>
+        </defs>
+        <polygon points="50,2 94,26 94,74 50,98 6,74 6,26" fill="url(#blgHex)" stroke="#0b4a63" stroke-width="1.6"/>
+        <circle cx="76" cy="24" r="8.5" fill="#f96d9c"/>
+        <text x="50" y="60" text-anchor="middle" font-family="Arial Black, Microsoft YaHei, sans-serif" font-size="26" font-weight="900" fill="#04293a">BLG</text>
+      </svg>
+      <div class="tname">BLG</div>
+      <div class="tregion">LPL</div>
+    </div>
+    <div class="center">
+      <div class="cd-label" id="cdLabel">距离决赛开赛</div>
+      <div class="countdown" id="countdown">
+        <div class="cd-text" id="cdText">--<span>天</span>--<span>时</span>--<span>分</span>--<span>秒</span></div>
+      </div>
+      <div class="cd-done" id="cdDone">⚔ 决战时刻已到 · BLG 冲鸭 ⚔</div>
+      <div class="cd-note">北京时间 11 月 15 日 03:00 · 纽约布鲁克林 · 巴克莱中心</div>
+    </div>
+    <div class="side g">
+      <svg class="crest-svg" viewBox="0 0 100 100" role="img" aria-label="GEN">
+        <defs>
+          <linearGradient id="genHex" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="49.5%" stop-color="#f5c93f"/><stop offset="50%" stop-color="#17171a"/>
+          </linearGradient>
+        </defs>
+        <polygon points="50,2 94,26 94,74 50,98 6,74 6,26" fill="url(#genHex)" stroke="#8a6f14" stroke-width="1.6"/>
+        <text x="50" y="60" text-anchor="middle" font-family="Arial Black, Microsoft YaHei, sans-serif" font-size="26" font-weight="900" fill="#ffffff" stroke="rgba(0,0,0,.45)" stroke-width="1">GEN</text>
+      </svg>
+      <div class="tname">GEN</div>
+      <div class="tregion">LCK</div>
+    </div>
+  </div>
+</header>
+
+<!-- 许愿树场景 -->
+<section class="scene-sec wrap">
+  <div class="scene" id="scene">
+    <svg class="tree" viewBox="0 0 1000 780" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="moonG" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fdf6dd"/><stop offset="70%" stop-color="#f0e6d2"/>
+          <stop offset="100%" stop-color="rgba(240,230,210,0)"/>
+        </radialGradient>
+        <radialGradient id="canopyDeep" cx="45%" cy="42%" r="68%">
+          <stop offset="0%" stop-color="#2a5d3e"/><stop offset="72%" stop-color="#1a4029"/><stop offset="100%" stop-color="#12301e00"/>
+        </radialGradient>
+        <radialGradient id="canopyMid" cx="48%" cy="38%" r="66%">
+          <stop offset="0%" stop-color="#3d7f4e"/><stop offset="70%" stop-color="#255538"/><stop offset="100%" stop-color="#1a402900"/>
+        </radialGradient>
+        <radialGradient id="canopyLit" cx="50%" cy="45%" r="60%">
+          <stop offset="0%" stop-color="#5ba05f"/><stop offset="65%" stop-color="#3d7f4e"/><stop offset="100%" stop-color="#3d7f4e00"/>
+        </radialGradient>
+        <linearGradient id="trunkG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#332216"/><stop offset="45%" stop-color="#6b4a30"/><stop offset="100%" stop-color="#2c1d12"/>
+        </linearGradient>
+        <linearGradient id="groundG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1c4a38"/><stop offset="100%" stop-color="#0a1c2a"/>
+        </linearGradient>
+        <radialGradient id="firefly" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffe9a8"/><stop offset="40%" stop-color="#ffd76a90"/><stop offset="100%" stop-color="#ffd76a00"/>
+        </radialGradient>
+      </defs>
+
+      <!-- 夜空与星 -->
+      <rect width="1000" height="780" fill="transparent"/>
+      <g fill="#f0e6d2">
+        <circle cx="90" cy="80" r="1.6" opacity=".8"/><circle cx="210" cy="52" r="1.1" opacity=".5"/>
+        <circle cx="330" cy="104" r="1.4" opacity=".6"/><circle cx="452" cy="64" r="1.2" opacity=".55"/>
+        <circle cx="586" cy="92" r="1.5" opacity=".7"/><circle cx="700" cy="46" r="1.2" opacity=".5"/>
+        <circle cx="826" cy="70" r="1.6" opacity=".8"/><circle cx="922" cy="140" r="1.2" opacity=".5"/>
+        <circle cx="60" cy="210" r="1.2" opacity=".5"/><circle cx="150" cy="300" r="1" opacity=".4"/>
+        <circle cx="946" cy="270" r="1.3" opacity=".55"/><circle cx="888" cy="366" r="1.1" opacity=".45"/>
+        <circle cx="40" cy="420" r="1.1" opacity=".4"/><circle cx="966" cy="470" r="1.2" opacity=".4"/>
+      </g>
+      <circle cx="852" cy="112" r="54" fill="url(#moonG)" opacity=".85"/>
+      <circle cx="852" cy="112" r="33" fill="#f7efdb" opacity=".95"/>
+
+      <!-- 远山两层 -->
+      <path d="M0,585 L130,492 L255,560 L410,470 L575,565 L755,486 L1000,585 L1000,780 L0,780 Z" fill="#0c1e30" opacity=".85"/>
+      <path d="M0,640 L180,575 L340,630 L520,560 L700,632 L870,572 L1000,640 L1000,780 L0,780 Z" fill="#102a40" opacity=".8"/>
+
+      <!-- 草地 -->
+      <ellipse cx="500" cy="766" rx="660" ry="128" fill="url(#groundG)"/>
+      <ellipse cx="500" cy="748" rx="430" ry="74" fill="#245c46" opacity=".65"/>
+      <!-- 草丛 -->
+      <g stroke="#2c6a4e" stroke-width="3" stroke-linecap="round" fill="none" opacity=".8">
+        <path d="M150,730 q4,-18 10,-24 M162,732 q-2,-14 -8,-22"/>
+        <path d="M840,726 q4,-18 10,-24 M852,728 q-2,-14 -8,-22"/>
+        <path d="M70,700 q3,-14 8,-19 M80,702 q-2,-11 -6,-16"/>
+        <path d="M930,700 q3,-14 8,-19 M940,702 q-2,-11 -6,-16"/>
+      </g>
+      <!-- 发光蘑菇 -->
+      <g>
+        <ellipse cx="238" cy="722" rx="9" ry="5" fill="#0a1f30"/>
+        <path d="M229,722 a9,7 0 0 1 18,0 Z" fill="#0ac8b9" opacity=".8"/>
+        <circle cx="238" cy="716" r="12" fill="url(#firefly)" opacity=".5"/>
+        <ellipse cx="768" cy="716" rx="8" ry="4.5" fill="#0a1f30"/>
+        <path d="M760,716 a8,6 0 0 1 16,0 Z" fill="#0ac8b9" opacity=".7"/>
+        <circle cx="768" cy="710" r="11" fill="url(#firefly)" opacity=".5"/>
+      </g>
+
+      <!-- 树影 -->
+      <ellipse cx="512" cy="748" rx="230" ry="30" fill="#06121e" opacity=".55"/>
+
+      <!-- 树干（根部外扩，曲线有机） -->
+      <path d="M414,752 C438,742 452,730 452,700 C452,610 436,540 402,462
+               C430,438 458,428 484,426 L500,430 L516,426 C542,428 570,438 598,462
+               C564,540 548,610 548,700 C548,730 562,742 586,752
+               C560,760 520,762 500,758 C480,762 440,760 414,752 Z" fill="url(#trunkG)"/>
+      <path d="M470,742 C480,630 466,552 440,486" stroke="#241509" stroke-width="4.5" fill="none" opacity=".55"/>
+      <path d="M532,742 C524,632 538,554 562,492" stroke="#241509" stroke-width="4.5" fill="none" opacity=".55"/>
+      <path d="M500,742 C498,660 502,560 500,470" stroke="#241509" stroke-width="2.5" fill="none" opacity=".35"/>
+      <!-- 主枝 -->
+      <path d="M446,470 C400,432 346,408 296,414 C330,398 372,398 410,420" stroke="#4d3520" stroke-width="16" fill="none" stroke-linecap="round"/>
+      <path d="M554,470 C600,432 654,408 704,414 C670,398 628,398 590,420" stroke="#4d3520" stroke-width="16" fill="none" stroke-linecap="round"/>
+      <path d="M482,452 C462,404 440,368 408,338" stroke="#4d3520" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <path d="M518,452 C540,402 566,364 602,332" stroke="#4d3520" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <path d="M500,446 C500,392 498,346 500,300" stroke="#4d3520" stroke-width="9" fill="none" stroke-linecap="round"/>
+
+      <!-- 树冠：深-中-亮三层 -->
+      <g>
+        <circle cx="292" cy="360" r="112" fill="url(#canopyDeep)"/>
+        <circle cx="708" cy="360" r="112" fill="url(#canopyDeep)"/>
+        <circle cx="360" cy="298" r="120" fill="url(#canopyDeep)"/>
+        <circle cx="640" cy="298" r="120" fill="url(#canopyDeep)"/>
+        <circle cx="500" cy="236" r="128" fill="url(#canopyDeep)"/>
+        <circle cx="420" cy="376" r="105" fill="url(#canopyDeep)"/>
+        <circle cx="580" cy="376" r="105" fill="url(#canopyDeep)"/>
+        <circle cx="500" cy="340" r="140" fill="url(#canopyMid)"/>
+        <circle cx="336" cy="330" r="88" fill="url(#canopyMid)"/>
+        <circle cx="664" cy="330" r="88" fill="url(#canopyMid)"/>
+        <circle cx="432" cy="262" r="92" fill="url(#canopyMid)"/>
+        <circle cx="568" cy="262" r="92" fill="url(#canopyMid)"/>
+        <circle cx="500" cy="212" r="78" fill="url(#canopyLit)"/>
+        <circle cx="404" cy="300" r="56" fill="url(#canopyLit)" opacity=".9"/>
+        <circle cx="596" cy="300" r="56" fill="url(#canopyLit)" opacity=".9"/>
+        <circle cx="466" cy="330" r="64" fill="url(#canopyLit)" opacity=".85"/>
+        <circle cx="540" cy="336" r="60" fill="url(#canopyLit)" opacity=".8"/>
+        <!-- 树冠边缘小簇 -->
+        <g fill="#255538" opacity=".9">
+          <circle cx="268" cy="404" r="26"/><circle cx="246" cy="352" r="22"/>
+          <circle cx="732" cy="404" r="26"/><circle cx="754" cy="352" r="22"/>
+          <circle cx="382" cy="196" r="24"/><circle cx="618" cy="196" r="24"/>
+          <circle cx="500" cy="150" r="26"/><circle cx="300" cy="264" r="20"/><circle cx="700" cy="264" r="20"/>
+        </g>
+        <!-- 金色树灯 -->
+        <g fill="#ffd76a">
+          <circle cx="352" cy="240" r="3" opacity=".75"/><circle cx="452" cy="184" r="3.4" opacity=".85"/>
+          <circle cx="552" cy="192" r="3" opacity=".7"/><circle cx="648" cy="244" r="3" opacity=".7"/>
+          <circle cx="286" cy="318" r="2.6" opacity=".6"/><circle cx="714" cy="318" r="2.6" opacity=".6"/>
+          <circle cx="404" cy="404" r="2.6" opacity=".55"/><circle cx="600" cy="404" r="2.6" opacity=".55"/>
+        </g>
+        <g fill="url(#firefly)" opacity=".65">
+          <circle cx="352" cy="240" r="9"/><circle cx="452" cy="184" r="10"/>
+          <circle cx="552" cy="192" r="9"/><circle cx="648" cy="244" r="9"/>
+        </g>
+        <!-- 金边高光 -->
+        <path d="M372,206 C428,158 572,158 628,206" stroke="#c8aa6e" stroke-width="2.5" fill="none" opacity=".4" stroke-linecap="round"/>
+      </g>
+
+      <!-- 萤火虫 -->
+      <g>
+        <circle cx="180" cy="520" r="8" fill="url(#firefly)"/><circle cx="180" cy="520" r="2" fill="#fff3c4"/>
+        <circle cx="828" cy="540" r="7" fill="url(#firefly)"/><circle cx="828" cy="540" r="1.8" fill="#fff3c4"/>
+        <circle cx="130" cy="620" r="6" fill="url(#firefly)" opacity=".8"/><circle cx="130" cy="620" r="1.6" fill="#fff3c4"/>
+        <circle cx="884" cy="640" r="6" fill="url(#firefly)" opacity=".8"/><circle cx="884" cy="640" r="1.6" fill="#fff3c4"/>
+      </g>
+    </svg>
+    <div class="tags-layer" id="tagsLayer">
+      <div class="tags-empty" id="tagsEmpty">树梢还空着 ——<br>点击下方按钮，挂上第一块应援牌</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="openBtn">挂上我的应援牌</button>
+    <button class="btn-fulfill" id="fulfillBtn">回来还愿</button>
+    <div class="mine-tip" id="mineTip"></div>
+    <div class="msg" id="mainMsg"></div>
+  </div>
+</section>
+
+<!-- 选手打CALL -->
+<section class="cheer-sec wrap">
+  <div class="sec-head">
+    <div class="line"></div>
+    <h2>选手打CALL</h2>
+    <div class="line r"></div>
+  </div>
+  <div class="sec-sub">点击选手名字即为 TA 发出一次声波 · <b>每人每天 10 次</b> · 次数永久累计</div>
+
+  <div class="team-label b"><div class="tl-line"></div><div class="tl-name">BLG · LPL</div><div class="tl-line"></div></div>
+  <div class="cheer-grid" id="gridB"></div>
+
+  <div class="team-label g"><div class="tl-line"></div><div class="tl-name">GEN · LCK</div><div class="tl-line"></div></div>
+  <div class="cheer-grid g5" id="gridG"></div>
+
+  <div class="daily-left" id="dailyLeft"></div>
+</section>
+
+<footer>
+  <div class="foot-divider"></div>
+  <p class="disclaimer">
+    <b>【版权与来源申明】</b>本站为粉丝自建的非营利应援页面，与 Riot Games（拳头游戏）、BLG / GEN 战队及赛事主办方无任何隶属关系。<br>
+    本站未使用任何游戏官方图片素材，树木、徽章等装饰均为自制 SVG / CSS 绘制；「League of Legends」「英雄联盟」及全球总决赛（Worlds）相关名称的权利归 Riot Games 所有。<br>
+    队伍名称与选手ID仅作应援指代；应援牌与打CALL数据由访客提交并保存在本站云端数据库，每台设备每日限 10 次声波、限挂一块牌子（可修改）。
+  </p>
+</footer>
+
+<!-- 许愿弹窗 -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <h3 id="modalTitle">挂上应援牌</h3>
+    <div class="sub" id="modalSub">选好阵营，写下想喊的话，牌子就会挂上树梢</div>
+    <div class="fac-pick">
+      <div class="fac b sel" id="facB" data-f="BLG">
+        <div class="fname">BLG</div>
+        <div class="fdesc">LPL · 淡蓝微粉</div>
+      </div>
+      <div class="fac g" id="facG" data-f="GEN">
+        <div class="fname">GEN</div>
+        <div class="fdesc">LCK · 金黑对半</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>你的昵称</label>
+      <input type="text" id="mNick" maxlength="16" placeholder="可留空，默认「匿名召唤师」">
+    </div>
+    <div class="field">
+      <label>应援 / 许愿内容（60 字以内）</label>
+      <textarea id="mText" maxlength="60" placeholder="例如：Viper 一箭定乾坤，BLG 把奖杯带回 LPL！"></textarea>
+    </div>
+    <div class="msg" id="mMsg"></div>
+    <div class="modal-btns">
+      <button class="btn2 ghost" id="mCancel">先不挂</button>
+      <button class="btn2 main" id="mSubmit">挂到树上</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+<script>
+  /* ===== 云端配置（publicConfig） ===== */
+  const PUBLIC_CONFIG = {
+    endpoint: "https://blg-cheer.app.workbuddy.host",
+    oauthRelayBaseUrl: "https://www.workbuddy.cn/v2/as/genie-baas/oauth",
+    publishableKey: "wbpk_hXjpiWeyniaGSq0MbiFIzS_W4ynKkN9hKBItAVczzt7cVf7lvUwyk48"
+  };
+  const cloud = WorkBuddyCloud.createWorkBuddyCloud({
+    endpoint: PUBLIC_CONFIG.endpoint,
+    oauthRelayBaseUrl: PUBLIC_CONFIG.oauthRelayBaseUrl,
+    publishableKey: PUBLIC_CONFIG.publishableKey
+  });
+  const db = cloud.database;
+
+  /* ===== 文明用语过滤（与云端 enforce_civilized() 同一份词库，改动请两处同步） ===== */
+  const CIVIL_WORDS = [
+    "傻逼", "煞笔", "傻b", "沙比", "屎比", "肏", "操你", "草你", "干你", "日你",
+    "草泥马", "马勒戈壁", "妈的", "妈了个", "贱人", "贱货", "婊子", "婊砸", "婊",
+    "狗日", "狗娘", "王八蛋", "王八羔子", "杂种", "畜生", "狗东西", "滚蛋", "滚你",
+    "废物", "白痴", "弱智", "脑残", "脑瘫", "去死", "该死", "狗屎", "屁眼",
+    "死全家", "全家死", "不得好死", "断子绝孙", "妈逼", "nmsl", "卧槽", "我操", "我草"
+  ];
+  const CIVIL_PATTERNS = [
+    /(你|尼|泥|妳|他|她|它)(马|妈|嘛|爹|爷|姥|奶|大爷|二大爷)/,
+    /(操|艹|干|日)(你|尼|泥|他|她|妳)/,
+    /\b(f+u+c+k+|f+u+q+|s+h+i+t+|b+i+t+c+h+|a+s+s+h+o+l+e+|c+u+n+t+|d+i+c+k+|c+o+c+k+|p+u+s+s+y+|n+i+g+g+(e+r|a)+s*|f+a+g+g+o+t+|r+e+t+a+r+d+(e+d+)?|b+a+s+t+a+r+d+|w+h+o+r+e+|s+l+u+t+|p+r+i+c+k+|d+i+l+d+o+)\b/,
+    /\bwtf\b/
+  ];
+  function uncivilWord(text) {
+    const s = (text || "").toLowerCase();
+    const w = CIVIL_WORDS.find(x => s.includes(x));
+    if (w) return w;
+    for (const p of CIVIL_PATTERNS) {
+      const m = s.match(p);
+      if (m) return m[0];
+    }
+    return null;
+  }
+
+  /* ===== 网址黑名单（与云端 enforce_civilized() 同步；自家域名白名单） ===== */
+  const URL_PATTERNS = [
+    /https?:\/\/|www\./i,
+    /\b[a-z][a-z0-9-]{1,}\.(com|net|org|cn|xyz|top|vip|cc|io|me|tv|club|shop|site|online|link|fun|icu|biz|info|pro|art|ltd|red|win|cool|mom|ren|wang|hk|tw|us|uk|jp|kr|ru|su|tk|ml|ga|cf|gq|pw|mn|la|bz|ws|st|to|xxx|porn|sex|adult|bet|casino|game|live|chat|bar|host|app)\b/i
+  ];
+  function hasUrl(text) {
+    const s = (text || "").toLowerCase().replace(/(https?:\/\/)?[a-z0-9.-]*workbuddy\.host(\/\S*)?/g, " ");
+    return URL_PATTERNS.some(p => p.test(s));
+  }
+
+  /* ===== 倒计时：2026-11-15 03:00 北京时间 ===== */
+  const FINAL_KICKOFF = new Date("2026-11-15T03:00:00+08:00").getTime();
+  function tick() {
+    const diff = FINAL_KICKOFF - Date.now();
+    if (diff <= 0) {
+      document.getElementById("countdown").style.display = "none";
+      document.getElementById("cdLabel").style.display = "none";
+      document.getElementById("cdDone").style.display = "block";
+      return;
+    }
+    const s = Math.floor(diff / 1000);
+    const D = Math.floor(s / 86400), H = Math.floor(s % 86400 / 3600),
+          M = Math.floor(s % 3600 / 60), S = s % 60;
+    document.getElementById("cdText").innerHTML =
+      `<b>${D}</b><span>天</span><b>${H}</b><span>时</span><b>${M}</b><span>分</span><b>${S}</b><span>秒</span>`;
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ===== 设备身份 ===== */
+  let clientId = localStorage.getItem("blg_tree_client");
+  if (!clientId) {
+    clientId = "c_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem("blg_tree_client", clientId);
+  }
+
+  /* ===== 选手数据 ===== */
+  const BLG_PLAYERS = [
+    { id: "Bin", pos: "上单" }, { id: "Flandre", pos: "上单" }, { id: "Xun", pos: "打野" },
+    { id: "Knight", pos: "中单" }, { id: "Viper", pos: "下路" }, { id: "ON", pos: "辅助" }
+  ];
+  const GEN_PLAYERS = [
+    { id: "Kiin", pos: "上单" }, { id: "Canyon", pos: "打野" }, { id: "Chovy", pos: "中单" },
+    { id: "Ruler", pos: "下路" }, { id: "Duro", pos: "辅助" }
+  ];
+  const DAILY_LIMIT = 10;
+
+  /* ===== 许愿树挂点 ===== */
+  const SPOTS = [
+    [33, 36], [42, 26], [50, 22], [58, 26], [67, 36],
+    [36, 49], [45, 38], [55, 38], [64, 49], [40, 60],
+    [50, 50], [60, 60], [34, 62], [66, 62], [45, 67],
+    [56, 68], [50, 76], [39, 72]
+  ];
+  let wishes = [];
+  let myWish = null;
+  let pickedFaction = "BLG";
+  let editing = false;
+  let cheerCounts = {};
+  let usedToday = 0;
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const todayStartISO = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString(); };
+
+  function toast(text) {
+    const t = $("toast");
+    t.textContent = text;
+    t.classList.add("show");
+    clearTimeout(t._h);
+    t._h = setTimeout(() => t.classList.remove("show"), 2400);
+  }
+  function showMsg(id, text, ok) {
+    const el = $(id);
+    el.textContent = text;
+    el.className = "msg " + (ok ? "ok" : "err");
+    clearTimeout(el._h);
+    if (ok) el._h = setTimeout(() => { el.textContent = ""; }, 3000);
+  }
+
+  /* ================= 许愿树 ================= */
+  function renderTags() {
+    const layer = $("tagsLayer");
+    $("tagsEmpty").style.display = wishes.length ? "none" : "grid";
+    layer.querySelectorAll(".wtag").forEach(n => n.remove());
+    myWish = null;
+    wishes.forEach((w, i) => {
+      const spot = SPOTS[i % SPOTS.length];
+      const drift = Math.floor(i / SPOTS.length) * 3;
+      const rot = ((i % 5) - 2) * 2.4;
+      const isMine = w.client_id === clientId;
+      const el = document.createElement("div");
+      el.className = "wtag " + (w.faction === "GEN" ? "g" : "b") + (isMine ? " mine" : "");
+      el.style.left = Math.min(96, Math.max(4, spot[0] + drift)) + "%";
+      el.style.top = Math.min(94, spot[1] + drift) + "%";
+      el.style.setProperty("--rot", rot + "deg");
+      el.style.animationDelay = (i % 7) * -0.4 + "s";
+      el.innerHTML = `
+        <div class="string"></div><div class="knot"></div>
+        <div class="board">
+          <div class="who"><span class="fchip">${esc(w.faction || "BLG")}</span>${esc(w.nickname || "匿名召唤师")}</div>
+          <div class="wt">${esc(w.content)}</div>
+          ${w.fulfilled ? '<div class="stamp">已还愿</div>' : ""}
+        </div>`;
+      el.title = `${w.nickname || "匿名召唤师"}：${w.content}${w.fulfilled ? "（已还愿）" : ""}`;
+      if (isMine) myWish = w;
+      el.onclick = () => openModal(isMine);
+      layer.appendChild(el);
+    });
+    $("mineTip").innerHTML = myWish
+      ? (myWish.fulfilled
+          ? `你已经挂了一块 <b>${esc(myWish.faction)}</b> 牌，并且回来还过愿了 ✦ —— 点树上的「我的」牌子可继续修改内容`
+          : `你已经挂了一块 <b>${esc(myWish.faction)}</b> 牌 —— 点树上的「我的」牌子即可修改；15日决赛之后回来还能「还愿」`)
+      : "每台设备限挂一块牌子，写完还能随时回来改";
+    $("openBtn").textContent = myWish ? "修改我的应援牌" : "挂上我的应援牌";
+    updateFulfillBtn();
+  }
+
+  function updateFulfillBtn() {
+    const btn = $("fulfillBtn");
+    const afterFinal = Date.now() >= FINAL_KICKOFF;
+    const canFulfill = !!myWish && !myWish.fulfilled && afterFinal;
+    btn.classList.toggle("show", canFulfill);
+  }
+
+  $("fulfillBtn").onclick = async () => {
+    if (!myWish) return;
+    const btn = $("fulfillBtn");
+    btn.disabled = true;
+    try {
+      const { data, error } = await db.from("wishes")
+        .update({ fulfilled: true }).eq("client_id", clientId).select();
+      if (error) throw error;
+      if (!data || data.length === 0) throw new Error("牌子不属于当前设备，未能还愿");
+      toast("✦ 还愿完成，愿望已盖金印");
+      await loadWishes();
+    } catch (e) {
+      console.error(e);
+      toast("还愿失败：" + (e.message || "未知错误"));
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  async function loadWishes() {
+    try {
+      $("tagsEmpty").textContent = "正在摇醒许愿树……";
+      const { data, error } = await db.from("wishes")
+        .select("*").order("created_at", { ascending: true }).limit(120);
+      if (error) throw error;
+      wishes = data || [];
+      renderTags();
+    } catch (e) {
+      console.error(e);
+      $("tagsEmpty").textContent = "大树连接失败：" + (e.message || "未知错误") + "，请刷新重试";
+    }
+  }
+
+  function openModal(isEdit) {
+    editing = !!(isEdit && myWish);
+    $("modalTitle").textContent = editing ? "修改我的应援牌" : "挂上应援牌";
+    $("modalSub").textContent = editing ? "改完提交，牌子会原地更新" : "选好阵营，写下想喊的话，牌子就会挂上树梢";
+    if (myWish) {
+      pickedFaction = myWish.faction === "GEN" ? "GEN" : "BLG";
+      $("mNick").value = myWish.nickname === "匿名召唤师" ? "" : (myWish.nickname || "");
+      $("mText").value = myWish.content;
+    } else {
+      $("mNick").value = localStorage.getItem("blg_tree_nick") || "";
+      $("mText").value = "";
+    }
+    syncFacUI();
+    $("mMsg").textContent = "";
+    $("mask").classList.add("show");
+  }
+  function syncFacUI() {
+    $("facB").classList.toggle("sel", pickedFaction === "BLG");
+    $("facG").classList.toggle("sel", pickedFaction === "GEN");
+  }
+  $("facB").onclick = () => { pickedFaction = "BLG"; syncFacUI(); };
+  $("facG").onclick = () => { pickedFaction = "GEN"; syncFacUI(); };
+  $("openBtn").onclick = () => openModal(!!myWish);
+  $("mCancel").onclick = () => $("mask").classList.remove("show");
+  $("mask").onclick = e => { if (e.target === $("mask")) $("mask").classList.remove("show"); };
+
+  $("mSubmit").onclick = async () => {
+    const btn = $("mSubmit");
+    const content = $("mText").value.trim();
+    if (!content) { showMsg("mMsg", "内容不能为空。", false); return; }
+    const nickname = ($("mNick").value || "").trim() || "匿名召唤师";
+    if (hasUrl(content) || hasUrl(nickname)) {
+      showMsg("mMsg", "牌子上不能带网址链接哦，防止有人发不合适的网站 ✦", false);
+      return;
+    }
+    const uncivil = uncivilWord(content) || uncivilWord(nickname);
+    if (uncivil) {
+      showMsg("mMsg", "为了文明应援，牌子上不能出现不友好的词，换一句温暖的加油吧 ✦", false);
+      return;
+    }
+    btn.disabled = true;
+    showMsg("mMsg", "挂上树梢中……", true);
+    try {
+      const payload = { client_id: clientId, faction: pickedFaction, nickname, content };
+      if (myWish) {
+        const { data, error } = await db.from("wishes").update(payload).eq("client_id", clientId).select();
+        if (error) throw error;
+        if (!data || data.length === 0) throw new Error("牌子不属于当前设备，未能修改");
+      } else {
+        const { error } = await db.from("wishes").insert(payload);
+        if (error) throw error;
+      }
+      localStorage.setItem("blg_tree_nick", nickname);
+      $("mask").classList.remove("show");
+      toast(editing ? "✦ 牌子已更新" : "✦ 牌子挂上了树梢！");
+      await loadWishes();
+      if (!editing && myWish) {
+        setTimeout(() => {
+          const mine = document.querySelector(".wtag.mine");
+          if (mine) mine.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 200);
+      }
+    } catch (e) {
+      console.error(e);
+      showMsg("mMsg", "提交失败：" + (e.message || "未知错误"), false);
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  /* ================= 选手打CALL ================= */
+  function renderPlayers() {
+    const mk = (list, faction) => list.map(p => `
+      <div class="ccard ${faction === "GEN" ? "g" : "b"}" data-player="${esc(p.id)}" title="点击给 ${esc(p.id)} 打CALL">
+        <div class="cid">${esc(p.id)}</div>
+        <div class="cpos">${esc(p.pos)}</div>
+        <div class="ccnt"><span>${cheerCounts[p.id] ?? 0}</span> 声波</div>
+      </div>`).join("");
+    $("gridB").innerHTML = mk(BLG_PLAYERS, "BLG");
+    $("gridG").innerHTML = mk(GEN_PLAYERS, "GEN");
+    document.querySelectorAll(".ccard").forEach(card => {
+      card.onclick = () => sendCheer(card);
+    });
+    updateDailyLeft();
+  }
+  function updateDailyLeft() {
+    $("dailyLeft").innerHTML = `今日剩余声波：<b>${Math.max(0, DAILY_LIMIT - usedToday)} / ${DAILY_LIMIT}</b>（按设备计，每天零点重置）`;
+  }
+  function floatPlus(card) {
+    const s = document.createElement("span");
+    s.className = "plus1";
+    s.textContent = "+1";
+    card.appendChild(s);
+    setTimeout(() => s.remove(), 900);
+  }
+  async function sendCheer(card) {
+    const player = card.dataset.player;
+    if (usedToday >= DAILY_LIMIT) {
+      toast("今天的 10 次声波已用完，明天再来给 TA 应援！");
+      return;
+    }
+    card.style.pointerEvents = "none";
+    try {
+      const { error } = await db.from("cheers").insert({ player, client_id: clientId, nickname: "匿名召唤师", message: "cheer" });
+      if (error) throw error;
+      usedToday++;
+      cheerCounts[player] = (cheerCounts[player] ?? 0) + 1;
+      const cnt = card.querySelector(".ccnt span");
+      if (cnt) cnt.textContent = cheerCounts[player];
+      floatPlus(card);
+      updateDailyLeft();
+    } catch (e) {
+      console.error(e);
+      toast("打CALL失败：" + (e.message || "未知错误"));
+    } finally {
+      card.style.pointerEvents = "";
+    }
+  }
+  async function loadCheerData() {
+    try {
+      const [countsRes, mineRes] = await Promise.all([
+        db.rpc("cheer_counts"),
+        db.from("cheers").select("*", { count: "exact", head: true })
+          .eq("client_id", clientId).gte("created_at", todayStartISO())
+      ]);
+      if (countsRes.error) throw countsRes.error;
+      if (mineRes.error) throw mineRes.error;
+      cheerCounts = {};
+      (countsRes.data || []).forEach(r => { cheerCounts[r.player] = Number(r.cnt); });
+      usedToday = mineRes.count || 0;
+      renderPlayers();
+    } catch (e) {
+      console.error(e);
+      $("dailyLeft").textContent = "打CALL数据加载失败：" + (e.message || "未知错误") + "，请刷新重试";
+      renderPlayers();
+    }
+  }
+
+  /* ===== 初始化 ===== */
+  loadWishes();
+  loadCheerData();
+</script>
+</body>
+</html>
