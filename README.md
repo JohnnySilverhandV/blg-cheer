@@ -1,8 +1,12 @@
-# BLG 应援树 · S16 决赛应援站
+# blg-cheer · BLG 应援许愿树
 
 为 BLG 3:1 战胜 T1 晋级 S16 决赛而做的应援网站。决赛倒计时 + 夜色许愿大树 + 选手打CALL，单文件 HTML，零构建零依赖，数据存云端——明年回来看，牌子和声波都还在。
 
 > 🎮 **在线试玩（国内直连）**：<https://blg-cheer.app.workbuddy.host/?sharecode=Z4HISPH5CZ>
+>
+> 🌐 **GitHub Pages**：<https://johnnysilverhandv.github.io/blg-cheer/>
+>
+> 📦 **离线版下载**：[GitHub Releases](https://github.com/JohnnySilverhandV/blg-cheer/releases) ｜ [码云 Releases](https://gitee.com/johnny-silver-hand123/blg-cheer/releases)
 
 ## 源码仓库
 
@@ -56,15 +60,19 @@ README.md    本文件
 LICENSE      MIT 许可证
 ```
 
-## 版本
+## 🆕 更新日志
 
-**v1.0**（2026-11-09）
+### v1.0 — 首发：决赛倒计时 + 许愿大树 + 选手打CALL（2026-11-09）
 
 - 决赛倒计时（BLG vs GEN，巴克莱中心）
 - 许愿大树：挂牌 / 改牌 / 还愿金印，每设备 1 块防注水
 - 选手打CALL：11 名选手声波计数，每设备每天 10 次
 - 文明用语双层过滤（脏词 + 亲人称呼正则 + 英文词边界匹配）
 - 网址黑名单防引流（自家域名白名单）
+
+## License
+
+MIT 许可证，详见 [LICENSE](LICENSE)。
 
 ## 版权申明
 
